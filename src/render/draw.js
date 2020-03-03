@@ -37,7 +37,7 @@ class TreeRender {
       return 0;
     };
     //this.handle_node_click = this.handle_node_click.bind(this);
-    ['transitions', 'css',  'layout', 'handle_node_click', 'refresh', 'count_handler', 'style_nodes', 'style_edges', 'item_selected'].forEach(fn => this[fn] = this[fn].bind(this))
+    ['transitions', 'css',  'layout', 'handle_node_click', 'refresh', 'count_handler', 'style_nodes', 'style_edges', 'item_selected'].forEach(fn => this[fn] = this[fn].bind(this));
     this._node_label = this.def_node_label;
     this.svg = null;
     this.selection_callback = null;
