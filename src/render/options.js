@@ -92,7 +92,7 @@ export function selection_label(attr) {
  * @param {Function} attr Optional; if setting, the node_span function.
  * @returns The ``node_span`` if getting, or the current ``phylotree`` if setting.
  */
-export function node_span(attr) {
+/* export function node_span(attr) {
   if (!arguments.length) return node_span;
   if (typeof attr == "string" && attr == "equal") {
     node_span = function(d) {
@@ -102,7 +102,7 @@ export function node_span(attr) {
     node_span = attr;
   }
   return phylotree;
-}
+} */
 
 // List of all selecters that can be used with the restricted-selectable option
 export var predefined_selecters = {

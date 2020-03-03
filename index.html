@@ -21,7 +21,7 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
     <script src="//d3js.org/d3.v5.js"></script>
     <script src="/build/phylotree.js"></script>
-    <link href="phylotree.css" rel="stylesheet">
+    <link href="/build/phylotree.css" rel="stylesheet">
 
     <style>
 
@@ -380,9 +380,12 @@ $(".phylotree-layout-mode").on ("click", function (e) {
 
 
 $("#toggle_animation").on ("click", function (e) {
-    var current_mode = $(this).hasClass('active');
+  var current_mode = $(this).hasClass('active');
     $(this).toggleClass('active');
-    tree.options ({'transitions' : !current_mode} );
+
+ 
+        rendered_tree.transitions(true).update();
+    
 });
 
 
@@ -427,46 +430,56 @@ $("#sort_descending").on ("click", function (e) {
 });
 
 $("#and_label").on ("click", function (e) {
-    tree.internal_label (function (d) { return d.reduce (function (prev, curr) { return curr[current_selection_name] && prev; }, true)}, true);
+    rendered_tree.internal_label (function (d) { return d.reduce (function (prev, curr) { return curr[current_selection_name] && prev; }, true)}, true);
+    rendered_tree.update();
 });
 
 $("#or_label").on ("click", function (e) {
-    tree.internal_label (function (d) { return d.reduce (function (prev, curr) { return curr[current_selection_name] || prev; }, false)}, true);
+    rendered_tree.internal_label (function (d) { return d.reduce (function (prev, curr) { return curr[current_selection_name] || prev; }, false)}, true);
+    rendered_tree.update();
 });
 
 
 $("#filter_add").on ("click", function (e) {
-    tree.modify_selection (function (d) { return d.tag || d[current_selection_name];}, current_selection_name, false, true)
+    rendered_tree.modify_selection (function (d) { return d.tag || d[current_selection_name];}, current_selection_name, false, true)
         .modify_selection (function (d) { return false; }, "tag", false, false);
+        rendered_tree.update();
 });
 
 $("#filter_remove").on ("click", function (e) {
-    tree.modify_selection (function (d) { return !d.tag;});
+    rendered_tree.modify_selection (function (d) { return !d.tag;});
+    rendered_tree.update();
 });
 
 $("#select_all").on ("click", function (e) {
-    tree.modify_selection (function (d) { return true;});
+    rendered_tree.modify_selection (function (d) { return true;});
+    rendered_tree.update();
 });
 
 $("#select_all_internal").on ("click", function (e) {
-    tree.modify_selection (function (d) { return !phylotree.is_leafnode (d.target);});
+    rendered_tree.modify_selection (function (d) { return !tree.is_leafnode (d.target);});
+    rendered_tree.update();
 });
 
 $("#select_all_leaves").on ("click", function (e) {
-    tree.modify_selection (function (d) { return phylotree.is_leafnode (d.target);});
+    rendered_tree.modify_selection (function (d) { return tree.is_leafnode (d.target);});
+    rendered_tree.update();
 });
 
 
 $("#select_none").on ("click", function (e) {
-    tree.modify_selection (function (d) { return false;});
+    rendered_tree.modify_selection (function (d) { return false;});
+    rendered_tree.update();
 });
 
 $("#clear_internal").on ("click", function (e) {
-    tree.modify_selection (function (d) { return phylotree.is_leafnode (d.target) ? d.target[current_selection_name] : false;});
+    rendered_tree.modify_selection (function (d) { return tree.is_leafnode (d.target) ? d.target[current_selection_name] : false;});
+    rendered_tree.update();
 });
 
 $("#clear_leaves").on ("click", function (e) {
-    tree.modify_selection (function (d) { return !phylotree.is_leafnode (d.target) ? d.target[current_selection_name] : false;});
+    rendered_tree.modify_selection (function (d) { return !tree.is_leafnode (d.target) ? d.target[current_selection_name] : false;});
+    rendered_tree.update();
 });
 
 
@@ -482,9 +495,10 @@ $("#branch_filter").on ("input propertychange", function (e) {
 
    var rx = new RegExp (filter_value,"i");
 
-  tree.modify_selection (function (n) {
+  rendered_tree.modify_selection (function (n) {
     return filter_value.length && (tree.branch_name () (n.target).search (rx)) != -1;
    },"tag");
+   rendered_tree.update();
 
 });
 
@@ -849,7 +863,7 @@ function update_selection_names (id, skip_rebuild) {
       .style ("color",  color_scheme(id))
       .property ("value", current_selection_name);
 
-    tree.selection_label (selection_set[id]);
+    rendered_tree.selection_label (selection_set[id]);
 }
 
 var width  = 800, //$(container_id).width(),

@@ -91,7 +91,9 @@ function mrca() {
 let Phylotree = class {
 
   constructor(nwk, options = {}) {
-
+    Object.keys(node_operations).forEach(fn => this[fn] =  node_operations[fn].bind(this))
+    Object.keys(rooting).forEach(fn => this[fn] =  rooting[fn].bind(this))
+    Object.keys(nexus).forEach(fn => this[fn] =  nexus[fn].bind(this))
     this.newick_string = "";
 
     this.nodes = [];

@@ -132,7 +132,7 @@ export function get_root_node() {
  * @returns {Array} Nodes in the current ``phylotree``.
  */
 export function get_nodes() {
-  return this.nodes;
+  return this.nodes.descendants();
 }
 
 /**

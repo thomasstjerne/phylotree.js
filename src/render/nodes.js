@@ -302,14 +302,14 @@ export function node_css_selectors(css_classes) {
 export function internal_label(callback, respect_existing) {
 
   this.phylotree.clear_internal_nodes(respect_existing);
-
-  for (var i = self.nodes.length - 1; i >= 0; i--) {
-    var d = self.nodes[i];
-    if (!(is_leafnode(d) || item_selected(d, selection_attribute_name))) {
-      d[selection_attribute_name] = callback(d.children);
+  const nodes = this.phylotree.get_nodes()
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    var d = nodes[i];
+    if (!(is_leafnode(d) || item_selected(d, this.selection_attribute_name))) {
+      d[this.selection_attribute_name] = callback(d.children);
     }
   }
-
+  const selection_attribute_name = this.selection_attribute_name
   this.modify_selection(function(d, callback) {
     if (is_leafnode(d.target)) {
       return d.target[selection_attribute_name];

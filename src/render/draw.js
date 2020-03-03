@@ -23,13 +23,21 @@ function constant(x) {
 class TreeRender {
 
   constructor(phylotree, container, options = {}) {
-    this.css_classes = css_classes;
+    this.selection_attribute_name = "selected";
+    Object.keys(clades).forEach(fn => this[fn] = clades[fn].bind(this))
+    Object.keys(render_nodes).forEach(fn => this[fn] = render_nodes[fn].bind(this))
+    Object.keys(render_edges).forEach(fn => this[fn] = render_edges[fn].bind(this))
+    Object.keys(events).forEach(fn => this[fn] = events[fn].bind(this))
+    Object.keys(menus).forEach(fn => this[fn] = menus[fn].bind(this))
+    Object.keys(opt).forEach(fn => {if(typeof opt[fn].bind === 'function')this[fn] = opt[fn].bind(this)})
+  //  this.options.css_classes = css_classes;
     this.phylotree = phylotree;
     this.container = container;
     this.separation = function(_node, _previous) {
       return 0;
     };
-
+    //this.handle_node_click = this.handle_node_click.bind(this);
+    ['transitions', 'css',  'layout', 'handle_node_click', 'refresh', 'count_handler', 'style_nodes', 'style_edges', 'item_selected'].forEach(fn => this[fn] = this[fn].bind(this))
     this._node_label = this.def_node_label;
     this.svg = null;
     this.selection_callback = null;
@@ -103,7 +111,8 @@ class TreeRender {
       "label-nodes-with-name": false,
       zoom: false,
       "show-menu": true,
-      "show-labels": true
+      "show-labels": true,
+      css_classes: css_classes
     };
 
     this.ensure_size_is_in_px = function(value) {
@@ -203,7 +212,7 @@ class TreeRender {
 
       this.set_size([this.height, this.width]);
 
-      if (this.css_classes["tree-container"] == "phylotree-container") {
+      if (this.options.css_classes["tree-container"] == "phylotree-container") {
         this.svg.selectAll("*").remove();
         this.svg.append("defs");
       }
@@ -249,8 +258,10 @@ class TreeRender {
 
     this.placenodes();
 
-    transitions = this.transitions(transitions);
-
+   if(arguments.length === 0){
+    transitions = this.transitions();
+   } 
+  // this.transitions = transitions;
     let node_id = 0;
 
     let enclosure = this.svg
@@ -1192,7 +1203,7 @@ class TreeRender {
   }
 
   css(opt) {
-    if (arguments.length === 0) return this.css_classes;
+    if (arguments.length === 0) return this.options.css_classes;
 
     if (arguments.length > 2) {
       var arg = {};
@@ -1200,25 +1211,20 @@ class TreeRender {
       return this.css(arg);
     }
 
-    for (var key in css_classes) {
+    for (var key in this.options.css_classes) {
       if (key in opt && opt[key] != css_classes[key]) {
-        css_classes[key] = opt[key];
+        this.options.css_classes[key] = opt[key];
       }
     }
 
     return this;
   }
 
-  transitions(arg) {
-    if (arg !== undefined) {
-      return arg;
-    }
-
-    if (this.options["transitions"] !== null) {
-      return this.options["transitions"];
-    }
-
-    return this.phylotree.nodes.descendants().length <= 300;
+  transitions(attr) {
+    if (!arguments.length) return this.options.transitions;
+    this.options.transitions = attr;
+    return this;
+ 
   }
 
   /**
@@ -1230,14 +1236,14 @@ class TreeRender {
    * @returns The current ``phylotree``.
    */
   css_classes(opt, run_update) {
-    if (!arguments.length) return this.css_classes;
+    if (!arguments.length) return this.options.css_classes;
 
     let do_update = false;
 
-    for (var key in css_classes) {
-      if (key in opt && opt[key] != this.css_classes[key]) {
+    for (var key in this.options.css_classes) {
+      if (key in opt && opt[key] != this.options.css_classes[key]) {
         do_update = true;
-        this.css_classes[key] = opt[key];
+        this.options.css_classes[key] = opt[key];
       }
     }
 
@@ -1258,11 +1264,11 @@ class TreeRender {
     if (this.svg) {
       this.svg.selectAll(
         "." +
-          this.css_classes["tree-container"] +
+          this.options.css_classes["tree-container"] +
           ",." +
-          this.css_classes["tree-scale-bar"] +
+          this.options.css_classes["tree-scale-bar"] +
           ",." +
-          this.css_classes["tree-selection-brush"]
+          this.options.css_classes["tree-selection-brush"]
       );
 
       //.remove();
@@ -1274,7 +1280,7 @@ class TreeRender {
     return this;
   }
 
-  handle_node_click(node) {
+  handle_node_click (node) {
     this.node_dropdown_menu(node, this.container, this, this.options);
   }
 
@@ -1282,11 +1288,11 @@ class TreeRender {
     if (this.svg) {
       // for re-entrancy
       let enclosure = this.svg.selectAll(
-        "." + this.css_classes["tree-container"]
+        "." + this.options.css_classes["tree-container"]
       );
 
       let edges = enclosure
-        .selectAll(render_edges.edge_css_selectors(this.css_classes))
+        .selectAll(render_edges.edge_css_selectors(this.options.css_classes))
         .attr("class", this.reclass_edge.bind(this));
 
       if (this.edge_styler) {
@@ -1296,7 +1302,7 @@ class TreeRender {
       }
 
       //let nodes = this.enclosure
-      //  .selectAll(inspector.node_css_selectors(this.css_classes))
+      //  .selectAll(inspector.node_css_selectors(this.options.css_classes))
       //  .attr("class", this.phylotree.reclass_node);
 
       //if (this.node_styler) {
